@@ -5,18 +5,24 @@ so this file will be loaded first, and then new results will be added to it.
 """
 
 import os
+import sys
+import yaml
 import time
 import pickle
 import random
 import argparse
-import urllib.request
 import feedparser
+import urllib.request
+from termcolor import colored
 
 from utils import Config, safe_pickle_dump
 
+printgreen = lambda q: print(colored(q, 'green'))
+printred = lambda q: print(colored(q, 'red'))
+
 def encode_feedparser_dict(d):
-  """ 
-  helper function to get rid of feedparser bs with a deep copy. 
+  """
+  helper function to get rid of feedparser bs with a deep copy.
   I hate when libs wrap simple things in their own classes.
   """
   if isinstance(d, feedparser.FeedParserDict) or isinstance(d, dict):
@@ -33,7 +39,7 @@ def encode_feedparser_dict(d):
     return d
 
 def parse_arxiv_url(url):
-  """ 
+  """
   examples is http://arxiv.org/abs/1512.08756v2
   we want to extract the raw id and the version
   """
@@ -44,11 +50,14 @@ def parse_arxiv_url(url):
   return parts[0], int(parts[1])
 
 if __name__ == "__main__":
+  with open('categories.yaml') as stream:
+    s = yaml.load(stream)
+  cats = '+OR+'.join(['cat:{}'.format(i) for i in s])
 
   # parse input arguments
   parser = argparse.ArgumentParser()
   parser.add_argument('--search-query', type=str,
-                      default='cat:cs.CV+OR+cat:cs.AI+OR+cat:cs.LG+OR+cat:cs.CL+OR+cat:cs.NE+OR+cat:stat.ML',
+                      default=cats,
                       help='query used for arxiv API. See http://arxiv.org/help/api/user-manual#detailed_examples')
   parser.add_argument('--start-index', type=int, default=0, help='0 = most recent API result')
   parser.add_argument('--max-index', type=int, default=10000, help='upper bound on paper index we will fetch')
@@ -74,51 +83,71 @@ if __name__ == "__main__":
   # main loop where we fetch the new results
   print('database has %d entries at start' % (len(db), ))
   num_added_total = 0
-  for i in range(args.start_index, args.max_index, args.results_per_iteration):
-
-    print("Results %i - %i" % (i,i+args.results_per_iteration))
-    query = 'search_query=%s&sortBy=lastUpdatedDate&start=%i&max_results=%i' % (args.search_query,
+  i = args.start_index
+  incremental_sleep_time = 0
+  sleeptime = 0
+  while (i <= args.max_index):
+    try:
+      print("Results %i - %i" % (i,i+args.results_per_iteration))
+      query = 'search_query=%s&sortBy=lastUpdatedDate&start=%i&max_results=%i' % (args.search_query,
                                                          i, args.results_per_iteration)
-    with urllib.request.urlopen(base_url+query) as url:
-      response = url.read()
-    parse = feedparser.parse(response)
-    num_added = 0
-    num_skipped = 0
-    for e in parse.entries:
+        
+      with urllib.request.urlopen(base_url+query) as url:
+        response = url.read()
+      parse = feedparser.parse(response)
+      num_added = 0
+      num_skipped = 0
 
-      j = encode_feedparser_dict(e)
-
-      # extract just the raw arxiv id and version for this paper
-      rawid, version = parse_arxiv_url(j['id'])
-      j['_rawid'] = rawid
-      j['_version'] = version
-
-      # add to our database if we didn't have it before, or if this is a new version
-      if not rawid in db or j['_version'] > db[rawid]['_version']:
-        db[rawid] = j
-        print('Updated %s added %s' % (j['updated'].encode('utf-8'), j['title'].encode('utf-8')))
-        num_added += 1
-        num_added_total += 1
+      if len(parse.entries) == 0:
+        print(response)
+        raise ValueError('No entries received from Arxiv, possibly due to rate limiting. Index: {}'.format(i))
       else:
-        num_skipped += 1
+        print("Entries found: {}".format(len(parse.entries)))
 
-    # print some information
-    print('Added %d papers, already had %d.' % (num_added, num_skipped))
+      for e in parse.entries:
+        j = encode_feedparser_dict(e)
+        # extract just the raw arxiv id and version for this paper
+        rawid, version = parse_arxiv_url(j['id'])
+        j['_rawid'] = rawid
+        j['_version'] = version
 
-    if len(parse.entries) == 0:
-      print('Received no results from arxiv. Rate limiting? Exiting. Restart later maybe.')
-      print(response)
-      break
+        # add to our database if we didn't have it before, or if this is a new version
+        with open('arxiv-log.txt', 'a') as outlog:
+          if not rawid in db or j['_version'] > db[rawid]['_version']:
+            db[rawid] = j
+            outlog.write('Updated %s added %s\n' % (j['updated'].encode('utf-8'), j['title'].encode('utf-8')))
+            num_added += 1
+            num_added_total += 1
+          else:
+            num_skipped += 1
 
-    if num_added == 0 and args.break_on_no_added == 1:
-      print('No new papers were added. Assuming no new papers exist. Exiting.')
-      break
+      # print some information
+      if num_added > 0:
+        printgreen('Added %d papers, %d were already in database.' % (num_added, num_skipped))
+        printgreen('Saving database with %d papers to %s' % (len(db), Config.db_path))
+        safe_pickle_dump(db, Config.db_path)
+      else:
+        printred('Warning: no new papers were added!')
 
-    print('Sleeping for %i seconds' % (args.wait_time , ))
-    time.sleep(args.wait_time + random.uniform(0, 3))
+      i = i + args.results_per_iteration
+      incremental_sleep_time = 0
+        
+      sleeptime = args.wait_time + random.uniform(0,30)
+      printgreen('Success, sleeping for {} seconds'.format(sleeptime))
+      time.sleep(sleeptime)
 
-  # save the database before we quit, if we found anything new
-  if num_added_total > 0:
-    print('Saving database with %d papers to %s' % (len(db), Config.db_path))
-    safe_pickle_dump(db, Config.db_path)
+    except ValueError as e:
+      incremental_sleep_time = incremental_sleep_time + 15
+      sleeptime = args.wait_time + incremental_sleep_time + random.uniform(0,30)
+      print(e)
+      printred("Error, sleeping for {} seconds.".format(sleeptime))
+      time.sleep(sleeptime)
+    except KeyboardInterrupt:
+        if num_added_total > 0:
+            printgreen('Saving database with %d papers to %s' % (len(db), Config.db_path))
+            safe_pickle_dump(db, Config.db_path)
+        else:
+            printred("No new papers added to database.")
+        print("Exiting.")
+        sys.exit()  
 
