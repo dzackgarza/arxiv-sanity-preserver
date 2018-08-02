@@ -91,7 +91,9 @@ if __name__ == "__main__":
       print("Results %i - %i" % (i,i+args.results_per_iteration))
       query = 'search_query=%s&sortBy=lastUpdatedDate&start=%i&max_results=%i' % (args.search_query,
                                                          i, args.results_per_iteration)
-        
+
+      print(base_url+query)
+
       with urllib.request.urlopen(base_url+query) as url:
         response = url.read()
       parse = feedparser.parse(response)
@@ -131,7 +133,7 @@ if __name__ == "__main__":
 
       i = i + args.results_per_iteration
       incremental_sleep_time = 0
-        
+
       sleeptime = args.wait_time + random.uniform(0,30)
       printgreen('Success, sleeping for {} seconds'.format(sleeptime))
       time.sleep(sleeptime)
@@ -149,5 +151,5 @@ if __name__ == "__main__":
         else:
             printred("No new papers added to database.")
         print("Exiting.")
-        sys.exit()  
+        sys.exit()
 

@@ -1,3 +1,19 @@
+A fork of arxiv sanity preserver for mathematicians -- in particular, this variant indexes the following Arxiv Math.* categories:
+
+- AC
+- AG
+- AT
+- CT
+- DG
+- GN
+- GT
+- KT
+- MG
+- RA
+
+Original README is below:
+
+---
 
 # arxiv sanity preserver
 
