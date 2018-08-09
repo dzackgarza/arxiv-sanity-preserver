@@ -65,7 +65,8 @@ h1 {
 }
 #titdiv {
 	width: auto;
-	height: 70px;
+	min-height: 70px;
+	height: 10vh;
 	background-color: #840000;
 	color: white;
 
@@ -127,7 +128,7 @@ h1 {
 	display: block;
 }
 #qfield {
-  border: 5px solid white; 
+  border: 5px solid white;
   width: 950px;
   border: solid 1px #999;
 
@@ -275,7 +276,7 @@ ul.flashes li {
 	border-left: 1px solid #AAA;
 	border-right: 1px solid #AAA;
 	border-top: 1px solid #AAA;
-	
+
 	padding: 10px 5px 10px 5px;
 	background-color: #FFF;
 }
@@ -447,7 +448,7 @@ ul.flashes li {
 }
 .caction {
 	display:inline-block;
-	float:right; 
+	float:right;
 	padding:2px;
 }
 .caction img {
