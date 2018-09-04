@@ -28,7 +28,8 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
 
   txt_basename = f + '.txt'
   if txt_basename in have:
-    print('%d/%d skipping %s, already exists.' % (i, len(files), txt_basename, ))
+    #print('%d/%d skipping %s, already exists.' % (i, len(files), txt_basename, ))
+    print('.', end='', flush=True)
     continue
 
   pdf_path = os.path.join(Config.pdf_dir, f)
@@ -36,7 +37,7 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
   cmd = "pdftotext %s %s" % (pdf_path, txt_path)
   os.system(cmd)
 
-  print('%d/%d %s' % (i, len(files), cmd))
+  print('\n%d/%d %s\n' % (i, len(files), cmd), end='')
 
   # check output was made
   if not os.path.isfile(txt_path):
