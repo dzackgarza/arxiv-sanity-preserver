@@ -11,3 +11,5 @@ data
 *.DS_Store
 twitter.txt
 arxiv-log.txt
+*.log
+.ipynb_checkpoints/

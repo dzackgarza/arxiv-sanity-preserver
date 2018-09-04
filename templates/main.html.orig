@@ -187,13 +187,19 @@ $(document).ready(function(){
   <!-- Site information/banner on top left -->
 	<a href="/">
 	<div id="tittxt">
+<<<<<<< HEAD
 		<h1>(Math) Arxiv Sanity Preserver</h1>
     Built by <a href="https://twitter.com/karpathy">@karpathy</a>, adapted for Math by <a href="https://dzackgarza.com">@dzackgarza</a><br>
     Serving last {{ totpapers }} papers from:
     <br>
     <div style="margin-left: 5px">
-      Math.{AC, AG, AT, CT, DG, GN, GT, KT, MG, NT, RA}
+      Math.{AC, AG, AT, CT, DG, GN, GT, KT, MG, RA}
     </div>
+=======
+		<h1>Arxiv Sanity Preserver</h1>
+		Built in spare time by <a href="https://twitter.com/karpathy">@karpathy</a> to accelerate research.<br>
+		Serving last {{ totpapers }} papers from cs.[CV|CL|LG|AI|NE]/stat.ML
+>>>>>>> 411b91225bbb5074fed01df8e31061bcfe3790f1
 	</div>
 	</a>
 </div>
