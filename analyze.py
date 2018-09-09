@@ -58,7 +58,13 @@ v = TfidfVectorizer(input='content',
 def make_corpus(paths):
   for p in paths:
     with open(p, 'r') as f:
-      txt = f.read()
+      try:
+        txt = f.read()
+      except Exception as e:
+        print("Error reading file: %s" % txt_path)
+        print(e)
+        with open("analyze.log", "a") as myfile:
+          myfile.write("Error making corpus: %s" % p)
     yield txt
 
 # train
