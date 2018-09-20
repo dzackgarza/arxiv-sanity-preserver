@@ -32,7 +32,7 @@ def extract_arxiv_pids(r):
   pids = []
   for u in r.urls:
     m = re.search('arxiv.org/abs/(.+)', u.expanded_url)
-    if m: 
+    if m:
       rawid = m.group(1)
       pids.append(rawid)
   return pids
@@ -68,7 +68,7 @@ api = twitter.Api(consumer_key=keys[0],
 
 # connect to mongodb instance
 client = pymongo.MongoClient()
-mdb = client.arxiv
+mdb = client.matharxiv
 tweets = mdb.tweets # the "tweets" collection in "arxiv" database
 tweets_top1 = mdb.tweets_top1
 tweets_top7 = mdb.tweets_top7
@@ -145,9 +145,9 @@ while True:
       # give people with more followers more vote, as it's seen by more people and contributes to more hype
       float_vote = min(math.log10(tweet['user_followers_count'] + 1), 4.0)/2.0
       for pid in tweet['pids']:
-        if not pid in records_dict: 
+        if not pid in records_dict:
           records_dict[pid] = {'pid':pid, 'tweets':[], 'vote': 0.0, 'raw_vote': 0} # create a new entry for this pid
-        
+
         # good tweets make a comment, not just a boring RT, or exactly the post title. Detect these.
         if pid in pid_to_words_cache:
           title_words = pid_to_words_cache[pid]
@@ -166,7 +166,7 @@ while True:
     # record the total amount of vote/raw_vote for each pid
     for pid in votes:
       records_dict[pid]['vote'] = votes[pid] # record the total amount of vote across relevant tweets
-      records_dict[pid]['raw_vote'] = raw_votes[pid] 
+      records_dict[pid]['raw_vote'] = raw_votes[pid]
 
     # crop the tweets to only some number of highest weight ones (for efficiency)
     for pid, d in records_dict.items():

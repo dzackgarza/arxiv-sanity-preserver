@@ -679,9 +679,9 @@ if __name__ == "__main__":
   SEARCH_DICT = cache['search_dict']
 
   print('connecting to mongodb...')
-  #client = pymongo.MongoClient('mongodb://%s:%s@127.0.0.1' % ("zack", "Poke28!1"))
-  client = pymongo.MongoClient('127.0.0.1', username = 'zack', password = 'Poke28!1', authSource = 'admin')
-  mdb = client.arxiv
+  client = pymongo.MongoClient('mongodb://%s:%s@ds251002.mlab.com:51002/matharxiv' % ("serveuser", "matharxiv123"))
+  # client = pymongo.MongoClient('ds251002.mlab.com:51002/matharxiv', username = 'serveuser', password = 'matharxiv', authSource = 'admin')
+  mdb = client.matharxiv
   tweets_top1 = mdb.tweets_top1
   tweets_top7 = mdb.tweets_top7
   tweets_top30 = mdb.tweets_top30

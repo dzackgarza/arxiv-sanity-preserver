@@ -16,3 +16,6 @@ flask
 flask_limiter
 tornado
 pymongo
+
+# Custom addons
+termcolor

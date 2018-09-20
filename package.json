@@ -1,0 +1,25 @@
+{
+  "name": "math-arxiv-sanity",
+  "version": "1.0.0",
+  "description": "A fork of arxiv sanity preserver for mathematicians -- in particular, this variant indexes the following Arxiv Math.* categories:",
+  "main": "index.js",
+  "scripts": {
+    "start": "python3 serve.py --prod --port 3030",
+    "prodstart": "pm2 start serve.py --interpreter=python3 -- --prod",
+    "update": "",
+    "restart": "pm2 restart serve.py"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dzackgarza/arxiv-sanity-preserver.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dzackgarza/arxiv-sanity-preserver/issues"
+  },
+  "homepage": "https://github.com/dzackgarza/arxiv-sanity-preserver#readme",
+  "devDependencies": {
+    "pm2": "^3.1.3"
+  }
+}

@@ -34,7 +34,7 @@ for pid,j in db.items():
         print(e)
         #raise SystemExit(0)
         with open("analyze.log", "a") as myfile:
-          myfile.write("Error reading file: %s" % txt_path)
+          myfile.write("Error reading file: %s\n" % txt_path)
     if len(txt) > 1000 and len(txt) < 500000: # 500K is VERY conservative upper bound
       txt_paths.append(txt_path) # todo later: maybe filter or something some of them
       pids.append(idvv)
@@ -64,7 +64,7 @@ def make_corpus(paths):
         print("Error reading file: %s" % txt_path)
         print(e)
         with open("analyze.log", "a") as myfile:
-          myfile.write("Error making corpus: %s" % p)
+          myfile.write("Error making corpus: %s\n" % p)
     yield txt
 
 # train
@@ -98,15 +98,17 @@ print("writing", Config.meta_path)
 safe_pickle_dump(out, Config.meta_path)
 
 print("precomputing nearest neighbor queries in batches...")
-X = X.todense() # originally it's a sparse matrix
 sim_dict = {}
 batch_size = 200
-for i in range(0,len(pids),batch_size):
+
+for i in range(0, len(pids), batch_size):
   i1 = min(len(pids), i+batch_size)
   xquery = X[i:i1] # BxD
-  ds = -np.asarray(np.dot(X, xquery.T)) #NxD * DxB => NxB
+  ds = -(X.dot(xquery.T)).toarray() #NxD * DxB => NxB
   IX = np.argsort(ds, axis=0) # NxB
   for j in range(i1-i):
+    print(i)
+    print(j)
     sim_dict[pids[i+j]] = [pids[q] for q in list(IX[:50,j])]
   print('%d/%d...' % (i, len(pids)))
 
