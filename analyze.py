@@ -5,6 +5,7 @@ Dumps results to file tfidf.p
 import os
 import pickle
 from random import shuffle, seed
+import datetime
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -102,13 +103,12 @@ sim_dict = {}
 batch_size = 200
 
 for i in range(0, len(pids), batch_size):
+  print(datetime.datetime.now())
   i1 = min(len(pids), i+batch_size)
   xquery = X[i:i1] # BxD
   ds = -(X.dot(xquery.T)).toarray() #NxD * DxB => NxB
   IX = np.argsort(ds, axis=0) # NxB
   for j in range(i1-i):
-    print(i)
-    print(j)
     sim_dict[pids[i+j]] = [pids[q] for q in list(IX[:50,j])]
   print('%d/%d...' % (i, len(pids)))
 

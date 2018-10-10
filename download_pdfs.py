@@ -13,10 +13,13 @@ printgreen = lambda q: print(colored(q, 'green'))
 printred = lambda q: print(colored(q, 'red'))
 
 
-timeout_secs = 10 # after this many seconds we give up on a paper
+printgreen("Loading list of current PDFs...")
+
+timeout_secs = 20 # after this many seconds we give up on a paper
 if not os.path.exists(Config.pdf_dir): os.makedirs(Config.pdf_dir)
 have = set(os.listdir(Config.pdf_dir)) # get list of all pdfs we already have
 
+printgreen("Loading database...")
 numok = 0
 numtot = 0
 db = pickle.load(open(Config.db_path, 'rb'))
@@ -29,13 +32,11 @@ if doproxy:
         'https': 'socks5://localhost:9050'
     }
     headers = {'User-agent': 'HotJava/1.1.2 FCS'}
-    #p = {'http': 'http://138.186.23.66:53281'}
-    #proxy = urllib.request.ProxyHandler(p)
-    #opener = urllib.request.build_opener(proxy)
-    #urllib.request.install_opener(opener)
 
 start_time = time.time()
 num_session = 0
+
+printgreen("Starting downloads!")
 for pid,j in db.items():
 
   pdfs = [x['href'] for x in j['links'] if x['type'] == 'application/pdf']

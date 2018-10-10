@@ -24,12 +24,20 @@ if not os.path.exists(Config.txt_dir):
 
 have = set(os.listdir(Config.txt_dir))
 files = os.listdir(Config.pdf_dir)
+badfiles = set()
+
+print( "Have %s txt files" % len(have) )
+print( "Have %s pdf files" % len(files) )
+i = 0
+
 for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't remember why it would be there. shouldn't be, i think.
+  i = i + 1
 
   txt_basename = f + '.txt'
   if txt_basename in have:
     #print('%d/%d skipping %s, already exists.' % (i, len(files), txt_basename, ))
-    print('.', end='', flush=True)
+    if(i % 1000 == 0):
+        print('.', end='', flush=True)
     continue
 
   pdf_path = os.path.join(Config.pdf_dir, f)
@@ -44,6 +52,11 @@ for i,f in enumerate(files): # there was a ,start=1 here that I removed, can't r
     # there was an error with converting the pdf
     print('there was a problem with parsing %s to text, creating an empty text file.' % (pdf_path, ))
     os.system('touch ' + txt_path) # create empty file, but it's a record of having tried to convert
+    badfiles.add(pdf_path)
 
   time.sleep(0.01) # silly way for allowing for ctrl+c termination
+
+print("\nProcessed %s files" % i)
+with open('badpdfconvertfiles.log', 'w') as f:
+        f.writelines(list(badfiles))
 

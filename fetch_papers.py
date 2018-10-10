@@ -23,7 +23,6 @@ printred = lambda q: print(colored(q, 'red'))
 def encode_feedparser_dict(d):
   """
   helper function to get rid of feedparser bs with a deep copy.
-  I hate when libs wrap simple things in their own classes.
   """
   if isinstance(d, feedparser.FeedParserDict) or isinstance(d, dict):
     j = {}

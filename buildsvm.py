@@ -1,12 +1,9 @@
-# standard imports
 import os
 import sys
 import pickle
-# non-standard imports
 import numpy as np
 from sklearn import svm
 from sqlite3 import dbapi2 as sqlite3
-# local imports
 from utils import safe_pickle_dump, strip_version, Config
 
 num_recommendations = 1000 # papers to recommend per user
@@ -46,7 +43,7 @@ for ii,u in enumerate(users):
   lib = query_db('''select * from library where user_id = ?''', [uid])
   pids = [x['paper_id'] for x in lib] # raw pids without version
   posix = [xtoi[p] for p in pids if p in xtoi]
-  
+
   if not posix:
     continue # empty library for this user maybe?
 

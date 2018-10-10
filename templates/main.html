@@ -184,15 +184,14 @@ $(document).ready(function(){
     {% endif %}
   </div>
 
-  <!-- Site information/banner on top left -->
 	<a href="/">
 	<div id="tittxt">
 		<h1>(Math) Arxiv Sanity Preserver</h1>
-    Built by <a href="https://twitter.com/karpathy">@karpathy</a>, adapted for Math by <a href="https://dzackgarza.com">@dzackgarza</a><br>
+    Built by <a href="https://twitter.com/karpathy">@karpathy</a>, forked for Math by <a href="https://dzackgarza.com">@dzackgarza</a><br>
     Serving last {{ totpapers }} papers from:
     <br>
     <div style="margin-left: 5px">
-      Math.{AC, AG, AT, CT, DG, GN, GT, KT, MG, NT, RA}
+      Math.{<a href='/search?q=math.AC'>AC</a>, <a href='/search?q=math.AG'>AG</a>, <a href='/search?q=math.AT'>AT</a>, <a href-'/search?q=math.CT'>CT</a>, <a href='/search?q=math.DF'>DG</a>, <a href='/search?q=math.GN'>GN</a>, <a href='/search?q=math.GT'>GT</a>, <a href='/search?q=math.KT'>KT</a>, <a href='/search?q=math.MG'>MG</a>, <a href='/search?q=math.NT'>NT</a>, <a href='/search?q=math.RA'>RA</a>}
     </div>
 	</div>
 	</a>
@@ -223,20 +222,6 @@ $(document).ready(function(){
   </form>
   <div id="search_hint"></div>
 </div>
-
-{% if show_prompt == "yes" %}
-<div id="prompt" style="background-color:#f6ff7a; padding:10px; width:980px; margin-left:auto; margin-right:auto; font-size:14px;">
-Hey there {{ g.user.username }}, sorry to interrupt. Arxiv-sanity costs a non-negligible amount of money to host.
-If you love the site, please consider pitching in:
-  <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" style="display:inline-block;">
-  <input type="hidden" name="cmd" value="_s-xclick">
-  <input type="hidden" name="hosted_button_id" value="DRW9PQ2J3U3RJ">
-  <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" style="display:inline-block;height:14px;">
-  <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-  </form>
-To nuke this message away for a long time click <span id="goaway" style="text-decoration: underline;cursor: pointer;">here</span>.
-</div>
-{% endif %}
 
 <div id="pagebar">
   <div class="pagelink" id="tabrecent"><a href="/">most recent</a></div>
