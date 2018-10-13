@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import sys
 import pickle
@@ -47,7 +48,7 @@ for ii,u in enumerate(users):
   if not posix:
     continue # empty library for this user maybe?
 
-  print(pids)
+  #print(pids)
   y = np.zeros(X.shape[0])
   for ix in posix: y[ix] = 1
 

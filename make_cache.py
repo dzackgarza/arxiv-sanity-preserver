@@ -1,8 +1,9 @@
+#!/usr/bin/python3
 """
 computes various cache things on top of db.py so that the server
 (running from serve.py) can start up and serve faster when restarted.
 
-this script should be run whenever db.p is updated, and 
+this script should be run whenever db.p is updated, and
 creates db2.p, which can be read by the server.
 """
 
@@ -89,7 +90,7 @@ for pid,p in db.items():
   dict_title = makedict(p['title'], forceidf=5, scale=3)
   dict_authors = makedict(' '.join(x['name'] for x in p['authors']), forceidf=5)
   dict_categories = {x['term'].lower():5 for x in p['tags']}
-  if 'and' in dict_authors: 
+  if 'and' in dict_authors:
     # special case for "and" handling in authors list
     del dict_authors['and']
   dict_summary = makedict(p['summary'])

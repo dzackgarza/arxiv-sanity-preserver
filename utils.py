@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 from contextlib import contextmanager
 
 import os
@@ -12,6 +13,7 @@ class Config(object):
     db_path = 'db.p'
     # intermediate processing folders
     pdf_dir = os.path.join('data', 'pdf')
+    bad_pdf_dir = os.path.join('data', 'bad_pdf')
     txt_dir = os.path.join('data', 'txt')
     thumbs_dir = os.path.join('static', 'thumbs')
     # intermediate pickles
@@ -23,7 +25,7 @@ class Config(object):
     db_serve_path = 'db2.p' # an enriched db.p with various preprocessing info
     database_path = 'as.db'
     serve_cache_path = 'serve_cache.p'
-    
+
     beg_for_hosting_money = 1 # do we beg the active users randomly for money? 0 = no.
     banned_path = 'banned.txt' # for twitter users who are banned
     tmp_dir = 'tmp'

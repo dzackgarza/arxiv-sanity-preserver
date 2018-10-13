@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 Reads txt files of all papers and computes tfidf vectors for all papers.
 Dumps results to file tfidf.p
@@ -6,44 +7,41 @@ import os
 import pickle
 from random import shuffle, seed
 import datetime
+import pytz
 
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 from utils import Config, safe_pickle_dump
 
+tz = pytz.timezone('America/Los_Angeles')
+
 seed(1337)
 max_train = 5000 # max number of tfidf training documents (chosen randomly), for memory efficiency
 max_features = 5000
 
-# read database
 db = pickle.load(open(Config.db_path, 'rb'))
-
-# read all text files for all papers into memory
 txt_paths, pids = [], []
 n = 0
+
 for pid,j in db.items():
-  n += 1
-  idvv = '%sv%d' % (j['_rawid'], j['_version'])
-  txt_path = os.path.join('data', 'txt', idvv) + '.pdf.txt'
-  if os.path.isfile(txt_path): # some pdfs dont translate to txt
-    with open(txt_path, 'r') as f:
-      try:
-        txt = f.read()
-      except Exception as e:
-        print("Error reading file: %s" % txt_path)
-        print(e)
-        #raise SystemExit(0)
+    n += 1
+    idvv = '%sv%d' % (j['_rawid'], j['_version'])
+    txt_path = os.path.join(Config.txt_dir, idvv) + '.pdf.txt'
+
+    try:
+        if not os.path.isfile(txt_path): raise Exception("Could not find file: %s" % txt_path)
+        txt = open(txt_path, 'r').read()
+        if len(txt) < 1000 or len(txt) > 500000:
+            raise Exception("Skipped %d/%d (%s) with %d chars: suspicious amount of text." % (n, len(db), idvv, len(txt)))
+        txt_paths.append(txt_path)
+        pids.append(idvv)
+    except Exception as e:
+        print("Error reading file %s (%s)" % (txt_path, e))
         with open("analyze.log", "a") as myfile:
-          myfile.write("Error reading file: %s\n" % txt_path)
-    if len(txt) > 1000 and len(txt) < 500000: # 500K is VERY conservative upper bound
-      txt_paths.append(txt_path) # todo later: maybe filter or something some of them
-      pids.append(idvv)
-      print("read %d/%d (%s) with %d chars" % (n, len(db), idvv, len(txt)))
-    else:
-      print("skipped %d/%d (%s) with %d chars: suspicious!" % (n, len(db), idvv, len(txt)))
-  else:
-    print("could not find %s in txt folder." % (txt_path, ))
+                myfile.write("Error reading file: %s\n" % txt_path)
+        continue
+
 print("in total read in %d text files out of %d db entries." % (len(txt_paths), len(db)))
 
 # compute tfidf vectors with scikits
@@ -62,8 +60,6 @@ def make_corpus(paths):
       try:
         txt = f.read()
       except Exception as e:
-        print("Error reading file: %s" % txt_path)
-        print(e)
         with open("analyze.log", "a") as myfile:
           myfile.write("Error making corpus: %s\n" % p)
     yield txt
@@ -103,7 +99,7 @@ sim_dict = {}
 batch_size = 200
 
 for i in range(0, len(pids), batch_size):
-  print(datetime.datetime.now())
+  print(datetime.datetime.now(tz))
   i1 = min(len(pids), i+batch_size)
   xquery = X[i:i1] # BxD
   ds = -(X.dot(xquery.T)).toarray() #NxD * DxB => NxB

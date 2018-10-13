@@ -2,25 +2,30 @@
 
 set -e
 
-export NVM_DIR="/home/zack/.nvm "
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+. ~/.bashrc
+. ~/dotfiles/.bash_colors
 
-echo $(date +%x_%H:%M:%S:%N)
+
+clr_red $(date +%x_%H:%M:%S:%N)
 SECONDS=0
 
-python3 fetch_papers.py
-#python3 download_pdfs.py &&
-python3 tor_download.py
-python3 parse_pdf_to_text.py
+#fetch_papers.py
+#download_pdfs.py &&
+#tor_download.py
+#find ./data/pdf -size 0 -type f -delete
+#find ./data/txt -size 0 -type f -delete
+find ./data/pdf -name "*.txt" -exec mv -t ./data/txt {} +
+clr_green "Cleaning PDFs ---------------------------------------" && ./cleanpdf.py
+clr_green "Parsing PDFs to Text --------------------------------" && ./parse_pdf_to_text.py
 find ./data/pdf -name "*.txt" -exec mv -t ./data/txt {} +
 find ./data -size 0 -type f -delete
-python3 thumb_pdf.py
-python3 analyze.py
-python3 buildsvm.py
-python3 make_cache.py
+clr_green "Creating thumbnails ---------------------------------" && ./thumb_pdf.py
+clr_green "Analyzing -------------------------------------------" && ./analyze.py
+clr_green "Building SVM ----------------------------------------" && ./buildsvm.py
+clr_green "Making Cache ----------------------------------------" && ./make_cache.py
 find ./data -size 0 -type f -delete
 
 pm2 reload serve
-echo $(date +%x_%H:%M:%S:%N)
-echo "DONE"
-echo $SECONDS
+clr_red $(date +%x_%H:%M:%S:%N)
+clr_red $SECONDS
+clr_green "DONE"
