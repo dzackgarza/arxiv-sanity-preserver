@@ -76,6 +76,7 @@ def reqToFile(db_key, basename, filename, req):
         with open(filename, 'wb') as f:
             f.write(req.content)
         print(".", end='', flush=True)
+        db[db_key]['ishtml'] = False
     elif ('text/html' in req.headers['Content-Type']):
         db[db_key]['ishtml'] = True
         raise ValueError(f"{db_key}: was HTML instead of PDF")

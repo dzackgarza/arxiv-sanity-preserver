@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+
+# Checks if the PDF files that were actually downloaded are in fact valid PDFs
 import os
 import sys
 import time

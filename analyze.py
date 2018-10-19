@@ -1,34 +1,58 @@
 #!/usr/bin/python3
+
 """
 Reads txt files of all papers and computes tfidf vectors for all papers.
 Dumps results to file tfidf.p
 """
+
 import os
-import pickle
-from random import shuffle, seed
-import datetime
+import sys
 import pytz
-
+import pickle
+import datetime
 import numpy as np
+from random import shuffle, seed
 from sklearn.feature_extraction.text import TfidfVectorizer
-
 from utils import Config, safe_pickle_dump
 
 tz = pytz.timezone('America/Los_Angeles')
-
-seed(1337)
-max_train = 5000 # max number of tfidf training documents (chosen randomly), for memory efficiency
+sim_dict = {}
+batch_size = 200
+max_train = 500 # max number of tfidf training documents (chosen randomly), for memory efficiency
 max_features = 5000
-
 db = pickle.load(open(Config.db_path, 'rb'))
 txt_paths, pids = [], []
 n = 0
+out = {}
 
-for pid,j in db.items():
+analysis_errors= set([l.strip() for l in open("analysis_errors.txt").readlines()])
+known_good_pdfs = set([l.strip() for l in open("known_good_pdfs.txt").readlines()])
+
+def save():
+    print("Now saving..")
+    open("analysis_errors.txt", 'w').writelines([l + '\n' for l in list(analysis_errors)])
+    safe_pickle_dump(sim_dict, Config.sim_path)
+
+import signal
+def signal_handler(sig, frame):
+    save()
+    print('Saved, now exiting')
+    sys.exit(0)
+signal.signal(signal.SIGINT, signal_handler)
+
+seed(1337)
+
+toProcess = {key:db[key] for key in db.keys() if 'ishtml' not in db[key] or not db[key]['ishtml']}
+print("Size of full database: %s" % len(db))
+print("Size of valid entries: %s" % len(toProcess))
+
+#for pid,j in db.items():
+for pid,j in toProcess.items():
     n += 1
     idvv = '%sv%d' % (j['_rawid'], j['_version'])
+    pdf_file_name = idvv + '.pdf'
+    if not pdf_file_name in known_good_pdfs or pdf_file_name in analysis_errors: continue
     txt_path = os.path.join(Config.txt_dir, idvv) + '.pdf.txt'
-
     try:
         if not os.path.isfile(txt_path): raise Exception("Could not find file: %s" % txt_path)
         txt = open(txt_path, 'r').read()
@@ -38,13 +62,12 @@ for pid,j in db.items():
         pids.append(idvv)
     except Exception as e:
         print("Error reading file %s (%s)" % (txt_path, e))
-        with open("analyze.log", "a") as myfile:
-                myfile.write("Error reading file: %s\n" % txt_path)
+        analysis_errors.add(pdf_file_name)
         continue
 
-print("in total read in %d text files out of %d db entries." % (len(txt_paths), len(db)))
+print("Read in %d text files out of %d db entries." % (len(txt_paths), len(toProcess)))
+save()
 
-# compute tfidf vectors with scikits
 v = TfidfVectorizer(input='content',
         encoding='utf-8', decode_error='replace', strip_accents='unicode',
         lowercase=True, analyzer='word', stop_words='english',
@@ -80,7 +103,6 @@ print(v.vocabulary_)
 print(X.shape)
 
 # write full matrix out
-out = {}
 out['X'] = X # this one is heavy!
 print("writing", Config.tfidf_path)
 safe_pickle_dump(out, Config.tfidf_path)
@@ -94,9 +116,7 @@ out['ptoi'] = { x:i for i,x in enumerate(pids) } # pid to ix in X mapping
 print("writing", Config.meta_path)
 safe_pickle_dump(out, Config.meta_path)
 
-print("precomputing nearest neighbor queries in batches...")
-sim_dict = {}
-batch_size = 200
+print("Precomputing nearest neighbor queries in batches...")
 
 for i in range(0, len(pids), batch_size):
   print(datetime.datetime.now(tz))
@@ -108,5 +128,4 @@ for i in range(0, len(pids), batch_size):
     sim_dict[pids[i+j]] = [pids[q] for q in list(IX[:50,j])]
   print('%d/%d...' % (i, len(pids)))
 
-print("writing", Config.sim_path)
-safe_pickle_dump(sim_dict, Config.sim_path)
+save()

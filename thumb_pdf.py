@@ -4,6 +4,7 @@ Use imagemagick to convert all pfds to a sequence of thumbnail images
 """
 
 import os
+import sys
 import time
 import shutil
 import glob
@@ -55,7 +56,7 @@ for i,p in enumerate(to_process):
         convert_cmd = ['convert', '%s[0-7]' % (pdf_path, ), '-thumbnail', 'x156', '+profile', '"*"', os.path.join(Config.tmp_dir, 'thumb.png')]
         print("Running: ", " ".join(convert_cmd))
 
-        thumb_return_code = subprocess.call(convert_cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout = 120)
+        thumb_return_code = subprocess.call(convert_cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout = 60)
         if (thumb_return_code != 0): raise Exception("Convert failed, %s" % thumb_return_code)
 
         thumb_was_rendered = os.path.isfile(os.path.join(Config.tmp_dir, 'thumb-0.png'))
@@ -63,14 +64,14 @@ for i,p in enumerate(to_process):
             known_bad_thumbs.add(p)
             raise Exception("No thumbnail found in temporary directory")
 
-        montage_cmd = "montage -mode concatenate -quality 80 -tile x1 %s %s" % (os.path.join(Config.tmp_dir, 'thumb-*.png'), thumb_path)
-        print("Running: %s" % montage_cmd)
+        montage_cmd = ['montage', '-mode', 'concatenate', '-quality', '80', '-tile', 'x1', os.path.join(Config.tmp_dir, 'thumb-*.png'), thumb_path]
+        print("Running: %s" % " ".join(montage_cmd))
 
-        montage_return_code = subprocess.call(montage_command, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout = 120)
+        montage_return_code = subprocess.call(montage_cmd, stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout = 60)
         if (montage_return_code != 0): raise Exception("Montage failed, %s" % montage_return_code)
 
     except Exception as e:
-        print("(%s) Convert command not successful: %s" % (p, e))
+        print("(%s) Error: [%s]" % (p, e))
         continue
 
 
