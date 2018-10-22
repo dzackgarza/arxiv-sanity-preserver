@@ -2,7 +2,7 @@
 
 set -e
 
-. ~/.bashrc
+. ~/.nvm/nvm.sh
 . ~/dotfiles/.bash_colors
 
 
@@ -32,6 +32,6 @@ clr_green "Making Cache ----------------------------------------" && ./make_cach
 find ./data -size 0 -type f -delete
 
 pm2 restart serve
-clr_red $(date +%x_%H:%M:%S:%N)
-clr_red $SECONDS
+echo "$(date +%x_%H:%M:%S:%N)" >> /home/zack/cronstatus.log
+echo "$SECONDS" >> /home/zack/cronstatus.log
 clr_green "DONE"
