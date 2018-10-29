@@ -22,7 +22,9 @@ sqldb.row_factory = sqlite3.Row # to return dicts rather than tuples
 CACHE = {}
 
 print('loading the paper database', Config.db_path)
-db = pickle.load(open(Config.db_path, 'rb'))
+db_file = pickle.load(open(Config.db_path, 'rb'))
+
+db = { k:v for (k,v) in db_file.items() if (not 'ishtml' in v or not v['ishtml']) }
 
 print('loading tfidf_meta', Config.meta_path)
 meta = pickle.load(open(Config.meta_path, "rb"))
@@ -57,7 +59,7 @@ for lib in libs:
   pid = lib['paper_id']
   counts[pid] = counts.get(pid, 0) + 1
 top_paper_counts = sorted([(v,k) for k,v in counts.items() if v > 0], reverse=True)
-CACHE['top_sorted_pids'] = [q[1] for q in top_paper_counts]
+CACHE['top_sorted_pids'] = [q[1] for q in top_paper_counts if q[1] in db.keys()]
 
 # some utilities for creating a search index for faster search
 punc = "'!\"#$%&\'()*+,./:;<=>?@[\\]^_`{|}~'" # removed hyphen from string.punctuation

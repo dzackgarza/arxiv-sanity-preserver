@@ -5,33 +5,35 @@ set -e
 . ~/.nvm/nvm.sh
 . ~/dotfiles/.bash_colors
 
-
-clr_red $(date +%x_%H:%M:%S:%N)
+echo $(date +%x_%H:%M:%S:%N)
 SECONDS=0
 
-./fetch_papers.py
-./tor_download.py
-find ./data -size 0 -type f -delete
-./tor_download.py
-find ./data -size 0 -type f -delete
-./tor_download.py
+PROJROOT=/var/www/html/math-arxiv-sanity
 
-find ./data -size 0 -type f -delete
-find ./data/pdf -name "*.txt" -exec mv -t ./data/txt {} +
+$PROJROOT/fetch_papers.py
+$PROJROOT/tor_download.py
+#find $PROJROOT/data -size 0 -type f -delete
+#$PROJROOT/tor_download.py
+#find $PROJROOT/data -size 0 -type f -delete
+#$PROJROOT/tor_download.py
 
-clr_green "Cleaning PDFs ---------------------------------------" && ./cleanpdf.py
-clr_green "Parsing PDFs to Text --------------------------------" && ./parse_pdf_to_text.py
+find $PROJROOT/data -size 0 -type f -delete
+find $PROJROOT/data/pdf -name "*.txt" -exec mv -t ./data/txt {} +
 
-find ./data/pdf -name "*.txt" -exec mv -t ./data/txt {} +
-find ./data -size 0 -type f -delete
+echo "Cleaning PDFs ---------------------------------------" && ./cleanpdf.py
+echo "Parsing PDFs to Text --------------------------------" && ./parse_pdf_to_text.py
 
-clr_green "Creating thumbnails ---------------------------------" && ./thumb_pdf.py
-clr_green "Analyzing -------------------------------------------" && ./analyze.py
-clr_green "Building SVM ----------------------------------------" && ./buildsvm.py
-clr_green "Making Cache ----------------------------------------" && ./make_cache.py
-find ./data -size 0 -type f -delete
+find $PROJROOT/data/pdf -name "*.txt" -exec mv -t ./data/txt {} +
+find $PROJROOT/data -size 0 -type f -delete
+
+echo "Creating thumbnails ---------------------------------" && ./thumb_pdf.py
+echo "Analyzing -------------------------------------------" && ./analyze.py
+echo "Building SVM ----------------------------------------" && ./buildsvm.py
+echo "Making Cache ----------------------------------------" && ./make_cache.py
+find $PROJROOT/data -size 0 -type f -delete
 
 pm2 restart serve
+echo "Finished." >> /home/zack/cronstatus.log
 echo "$(date +%x_%H:%M:%S:%N)" >> /home/zack/cronstatus.log
-echo "$SECONDS" >> /home/zack/cronstatus.log
-clr_green "DONE"
+echo "Hours to complete:" >> /home/zack/cronstatus.log
+echo "$SECONDS / 3600" | bc -l  >> /home/zack/cronstatus.log

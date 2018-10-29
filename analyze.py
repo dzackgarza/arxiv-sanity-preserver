@@ -18,7 +18,7 @@ from utils import Config, safe_pickle_dump
 tz = pytz.timezone('America/Los_Angeles')
 sim_dict = {}
 batch_size = 200
-max_train = 500 # max number of tfidf training documents (chosen randomly), for memory efficiency
+max_train = 5000 # max number of tfidf training documents (chosen randomly), for memory efficiency
 max_features = 5000
 db = pickle.load(open(Config.db_path, 'rb'))
 txt_paths, pids = [], []

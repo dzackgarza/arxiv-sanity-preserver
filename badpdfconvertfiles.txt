@@ -1,8 +1,0 @@
-data/pdf/1810.03646v4.txt
-data/pdf/1708.04296v3.txt
-data/pdf/1810.07079v2.txt
-data/pdf/1711.03944v3.txt
-data/pdf/1810.06028v3.txt
-data/pdf/1810.01613v3.txt
-data/pdf/1810.02240v3.txt
-data/pdf/1810.06792v2.txt
