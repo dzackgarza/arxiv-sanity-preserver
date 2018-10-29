@@ -130,7 +130,7 @@ def papers_from_library():
     uid = session['user_id']
     user_library = query_db('''select * from library where user_id = ?''', [uid])
     libids = [strip_version(x['paper_id']) for x in user_library]
-    out = [db[x] for x in libids]
+    out = [db[x] for x in libids if x in db.keys()]
     out = sorted(out, key=lambda k: k['updated'], reverse=True)
   return out
 
@@ -147,7 +147,7 @@ def papers_from_svm(recent_days=None):
     libids = {strip_version(x['paper_id']) for x in user_library}
 
     plist = user_sim[uid]
-    out = [db[x] for x in plist if not x in libids]
+    out = [db[x] for x in plist if x in db.keys and not x in libids]
 
     if recent_days is not None:
       # filter as well to only most recent papers
