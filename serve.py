@@ -147,7 +147,7 @@ def papers_from_svm(recent_days=None):
     libids = {strip_version(x['paper_id']) for x in user_library}
 
     plist = user_sim[uid]
-    out = [db[x] for x in plist if x in db.keys and not x in libids]
+    out = [db[x] for x in plist if x in db.keys() and not x in libids]
 
     if recent_days is not None:
       # filter as well to only most recent papers
@@ -218,7 +218,7 @@ def default_context(papers, **kws):
   # prompt logic
   show_prompt = 'no'
   try:
-    if Config.beg_for_hosting_money and g.user and uniform(0,1) < 0.05:
+    if False and g.user and uniform(0,1) < 0.05:
       uid = session['user_id']
       entry = goaway_collection.find_one({ 'uid':uid })
       if not entry:
